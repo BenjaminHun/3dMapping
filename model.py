@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from torchvision import datasets
 from torchvision.transforms import ToTensor
 from torchvision.io import ImageReadMode
 import matplotlib.pyplot as plt
@@ -28,10 +27,11 @@ device = (
 
 class CustomImageDataset(Dataset):
 
-    def __init__(self, img_dir, annotations_file):
+    def __init__(self, img_dir, annotations_file, transform=None):
         super().__init__()
         self.img_dir = img_dir
         self.img_labels = pd.read_csv(annotations_file)
+        self.transform=transform
 
     def __len__(self):
         return len(self.img_labels)
@@ -84,6 +84,9 @@ class CustomImageDataset(Dataset):
 
         # Remove alpha layer
         label = self.parse_numbers_from_file(groundTruthImgPath)
+
+        if self.transform:
+            image = self.transform(image)
 
         global device
         if device == "cuda":

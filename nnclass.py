@@ -9,37 +9,27 @@ class swinT2(nn.Module):
     def __init__(self):
         super().__init__()
         self.swinT = sw.SwinTransformer(img_size=(
-            128, 128), patch_size=4, window_size=4, in_chans=1, depths=[12], embed_dim=12, drop_rate=0.3)
+            1024, 512), patch_size=4, window_size=4, in_chans=1, depths=[12], embed_dim=12, drop_rate=0.3)
         self.swinT2 = sw.SwinTransformer(img_size=(
-            32, 32), patch_size=4, window_size=4, in_chans=12, depths=[12], embed_dim=24, drop_rate=0.3)
+            256, 128), patch_size=4, window_size=4, in_chans=12, depths=[12], embed_dim=24, drop_rate=0.3)
 
         self.convStack = nn.Sequential(
-
-
-            nn.ConvTranspose2d(24, 16, 3, padding=1,
-                               output_padding=1, stride=2),
-            nn.ReLU(),
-            nn.ConvTranspose2d(16, 8, 3, padding=1,
-                               output_padding=1, stride=2),
-            nn.ConvTranspose2d(8, 4, 3, padding=1,
-                               output_padding=1, stride=2),
-            nn.ReLU(),
-            nn.ConvTranspose2d(4, 1, 3, padding=1,
-                               output_padding=1, stride=2),
-
+        nn.Linear(49152, 512),
+        nn.Linear(512, 256),
+        nn.Linear(256, 10)
         )
 
     def forward(self, x):
         x = self.swinT(x)
-        H = 128
-        W = 128
+        H = 1024
+        W = 512
         B, HW, C = x.shape
         newH = int((H/(m.pow((H*W)/HW, 0.5))))
         newW = int((W/(m.pow((H*W)/HW, 0.5))))
         x = x.view(B, C, newH, newW)
         x = self.swinT2(x)
-        H = 32
-        W = 32
+        H = 256
+        W = 128
         B, HW, C = x.shape
         newH = int((H/(m.pow((H*W)/HW, 0.5))))
         newW = int((W/(m.pow((H*W)/HW, 0.5))))
@@ -118,11 +108,11 @@ class swinT3(nn.Module):
     def __init__(self):
         super().__init__()
         self.swinT = sw.SwinTransformer(img_size=(
-            128, 128), patch_size=4, window_size=4, in_chans=3, depths=[12], embed_dim=12, drop_rate=0.3)
+            1024, 512), patch_size=4, window_size=4, in_chans=3, depths=[12], embed_dim=12, drop_rate=0.3)
         self.swinT2 = sw.SwinTransformer(img_size=(
-            32, 32), patch_size=4, window_size=4, in_chans=12, depths=[12], embed_dim=24, drop_rate=0.3)
+            256, 128), patch_size=4, window_size=4, in_chans=12, depths=[12], embed_dim=24, drop_rate=0.3)
         self.swinT3 = sw.SwinTransformer(img_size=(
-            8, 8), patch_size=4, window_size=4, in_chans=24, depths=[6], embed_dim=48, drop_rate=0.1)
+            64, 32), patch_size=4, window_size=4, in_chans=24, depths=[6], embed_dim=48, drop_rate=0.1)
 
         self.convStack = nn.Sequential(
             nn.ConvTranspose2d(48, 36, 3, padding=1,
